@@ -4,14 +4,6 @@ A full-stack web application that suggests recipes based on photos of your fridg
 
 ## Learning Objectives
 
-This project will teach you:
-- **Frontend Development**: React with TypeScript, modern UI/UX design
-- **Backend Development**: Node.js with Express, API design
-- **External APIs**: OpenAI API integration, image analysis
-- **Full-Stack Architecture**: Client-server communication
-- **Version Control**: Git workflow, GitHub collaboration
-- **Deployment**: Hosting your application
-
 ## Project Structure
 
 ```
