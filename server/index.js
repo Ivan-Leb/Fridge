@@ -21,7 +21,7 @@ app.use(limiter);
 
 // CORS configuration - allows frontend to communicate
 app.use(cors({
-  origin: process.env.FRONTEND_URL || 'http://localhost:3000',
+  origin: 'http://localhost:3000', // allow your frontend
   credentials: true
 }));
 
@@ -40,6 +40,7 @@ app.get('/api/health', (req, res) => {
 
 // API routes
 app.use('/api', recipeRoutes);
+app.use('/api/recipes', recipeRoutes);
 
 // Error handling middleware
 app.use((err, req, res, next) => {

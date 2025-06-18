@@ -1,4 +1,5 @@
 const OpenAI = require('openai');
+const fs = require('fs').promises;
 
 // Initialize OpenAI client
 const openai = new OpenAI({
@@ -15,7 +16,7 @@ async function analyzeFridgePhoto(base64Image) {
     console.log('🤖 Sending photo to OpenAI for analysis...');
 
     const response = await openai.chat.completions.create({
-      model: "gpt-4-vision-preview",
+      model: "gpt-4o",
       messages: [
         {
           role: "user",

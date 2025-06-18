@@ -1,6 +1,9 @@
 const express = require('express');
 const multer = require('multer');
-const { analyzeFridgePhoto } = require('../services/openai');
+const { analyzeFridgePhoto } = require('../services/gemini');
+
+const fs = require('fs').promises;
+const path = require('path');
 
 const router = express.Router();
 
@@ -24,31 +27,25 @@ const upload = multer({
 // POST /api/analyze-fridge
 // Analyzes a fridge photo and returns recipe suggestions
 router.post('/analyze-fridge', upload.single('photo'), async (req, res) => {
-  try {
-    if (!req.file) {
-      return res.status(400).json({ error: 'No photo uploaded' });
-    }
+  if (!req.file) {
+    return res.status(400).json({ error: 'No photo uploaded' });
+  }
 
-    console.log('📸 Processing fridge photo...');
-    
-    // Convert image to base64 for OpenAI API
-    const imageBuffer = req.file.buffer;
-    const base64Image = imageBuffer.toString('base64');
-    
-    // Analyze the photo with OpenAI
-    const recipeSuggestions = await analyzeFridgePhoto(base64Image);
-    
+  try {
+    const prompt = "List the main ingredients you see in this fridge photo and suggest 3 recipes I could make with them.";
+    // Call the Gemini service
+    const recipeSuggestions = await analyzeFridgePhoto(req.file.buffer, req.file.mimetype, prompt);
+
     res.json({
       success: true,
       recipes: recipeSuggestions,
       message: 'Recipe suggestions generated successfully!'
     });
-
   } catch (error) {
-    console.error('Error analyzing fridge photo:', error);
-    res.status(500).json({ 
+    console.error('Error analyzing fridge photo:', error.message);
+    res.status(500).json({
       error: 'Failed to analyze photo',
-      message: error.message 
+      message: error.message
     });
   }
 });
@@ -70,6 +67,39 @@ router.get('/recipes', (req, res) => {
   ];
   
   res.json({ recipes: sampleRecipes });
+});
+
+router.post('/photo', upload.single('photo'), async (req, res) => {
+  if (!req.file) {
+    return res.status(400).json({ error: 'No file uploaded' });
+  }
+  try {
+    const imagePath = path.join(__dirname, '..', req.file.path);
+    const imageBuffer = await fs.readFile(imagePath);
+    const imageBase64 = imageBuffer.toString('base64');
+
+    const prompt = "List the main ingredients you see and suggest 3 recipes I could make with them.";
+    const response = await openai.chat.completions.create({
+      model: "gpt-4-vision-preview",
+      messages: [
+        {
+          role: "user",
+          content: [
+            { type: "text", text: prompt },
+            { type: "image_url", image_url: { "url": `data:image/png;base64,${imageBase64}` } }
+          ]
+        }
+      ],
+      max_tokens: 500
+    });
+
+    const recipes = response.choices[0]?.message?.content || "No recipes found.";
+    await fs.unlink(imagePath); // Clean up uploaded file
+    res.json({ recipes });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Failed to process image" });
+  }
 });
 
 module.exports = router; 
