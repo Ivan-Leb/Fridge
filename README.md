@@ -2,8 +2,6 @@
 
 A full-stack web application that suggests recipes based on photos of your fridge contents using OpenAI's GPT-4 Vision API.
 
-## Learning Objectives
-
 ## Project Structure
 
 ```
