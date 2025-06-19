@@ -7,6 +7,10 @@
   pointer-events: none;
 }
 
+body {
+  font-size: 1.25rem; /* or 20px, or larger as needed */
+}
+
 @media (prefers-reduced-motion: no-preference) {
   .App-logo {
     animation: App-logo-spin infinite 20s linear;
